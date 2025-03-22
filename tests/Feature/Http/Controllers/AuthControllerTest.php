@@ -40,4 +40,24 @@ class AuthControllerTest extends TestCase
             'token'
         ]);
     }
+
+    public function test_user_can_logout(): void
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('auth-token', ['*'], now()->addHour());
+
+        $tokenId = $token->accessToken->id;
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token->plainTextToken
+        ])->post('/api/logout');
+
+        $response->assertOk()->assertJson([
+            'result' => true
+        ]);
+        $this->assertDatabaseMissing('personal_access_tokens', [
+            'tokenable_id' => $user->id,
+            'id' => $tokenId,
+        ]);
+    }
 }

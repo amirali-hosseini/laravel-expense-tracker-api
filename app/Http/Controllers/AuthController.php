@@ -21,18 +21,19 @@ class AuthController extends Controller
                 now()->addWeek()
             );
 
-            return response()->json([
+            return $this->response([
                 'token' => $token->plainTextToken
-            ]);
+            ], true);
 
         } else {
 
-            return response()->json(
+            return $this->response(
                 [
                     'errors' => [
                         'email' => ['The provided credentials are incorrect.']
                     ],
                 ],
+                false,
                 422
             );
         }
@@ -50,8 +51,21 @@ class AuthController extends Controller
             now()->addWeek()
         );
 
-        return response()->json([
+        return $this->response([
             'token' => $token->plainTextToken
-        ]);
+        ], true);
+    }
+
+    public function logout(): JsonResponse
+    {
+        $user = auth()->user();
+
+        if ($user && $user->currentAccessToken()) {
+            $user->currentAccessToken()->delete();
+        }
+
+        return $this->response([
+            'message' => 'Logged out successfully'
+        ], true);
     }
 }
