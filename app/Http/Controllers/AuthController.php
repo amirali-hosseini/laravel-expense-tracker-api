@@ -53,7 +53,7 @@ class AuthController extends Controller
 
         return $this->response([
             'token' => $token->plainTextToken
-        ], true);
+        ], true, 201);
     }
 
     public function logout(): JsonResponse

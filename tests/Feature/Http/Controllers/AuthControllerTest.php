@@ -19,25 +19,41 @@ class AuthControllerTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'token'
+        $response->assertOk()
+            ->assertJsonStructure(
+                ['result', 'token']
+            )->assertJson(
+                ['result' => true]
+            );
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $user->id,
         ]);
     }
 
     public function test_user_can_register(): void
     {
-        $user = User::factory()->make();
-
         $response = $this->post('/api/register', [
-            'name' => $user->name,
-            'email' => $user->email,
-            'password' => 'password',
+            'name' => 'John Doe',
+            'email' => 'johndoe@example.com',
+            'password' => 'password#12345',
         ]);
 
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'token'
+        $response->assertCreated()
+            ->assertJsonStructure(
+                ['result', 'token']
+            )->assertJson(
+                ['result' => true]
+            );
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'johndoe@example.com',
+        ]);
+
+        $user = User::where('email', 'johndoe@example.com')->first();
+
+        $this->assertDatabaseHas('personal_access_tokens', [
+            'tokenable_id' => $user->id,
         ]);
     }
 
