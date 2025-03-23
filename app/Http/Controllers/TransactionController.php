@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
+use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 
 class TransactionController extends Controller
@@ -13,7 +14,9 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        //
+        $transactions = auth()->user()->transactions()->latest()->paginate(20);
+
+        return $this->jsonResponse(['data' => TransactionResource::collection($transactions)->toArray(request())], true);
     }
 
     /**
@@ -21,7 +24,17 @@ class TransactionController extends Controller
      */
     public function store(StoreTransactionRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        $validated['user_id'] = auth()->id();
+
+        Transaction::query()->create($validated);
+
+        return $this->jsonResponse(
+            ['message' => 'Transaction created successfully.'],
+            true,
+            201
+        );
     }
 
     /**
@@ -29,7 +42,15 @@ class TransactionController extends Controller
      */
     public function show(Transaction $transaction)
     {
-        //
+        if ($transaction->user()->is(auth()->user())) {
+
+            return $this->jsonResponse(
+                ['data' => new TransactionResource($transaction)]
+            );
+        } else {
+
+            return $this->unauthenticatedResponse();
+        }
     }
 
     /**
@@ -37,7 +58,17 @@ class TransactionController extends Controller
      */
     public function update(UpdateTransactionRequest $request, Transaction $transaction)
     {
-        //
+        if ($transaction->user()->is(auth()->user())) {
+
+            $transaction->update($request->validated());
+
+            return $this->jsonResponse(
+                ['message' => 'The transaction has been updated.']
+            );
+        } else {
+
+            return $this->unauthenticatedResponse();
+        }
     }
 
     /**
@@ -45,6 +76,16 @@ class TransactionController extends Controller
      */
     public function destroy(Transaction $transaction)
     {
-        //
+        if ($transaction->user()->is(auth()->user())) {
+
+            $transaction->delete();
+
+            return $this->jsonResponse(
+                ['message' => 'The transaction has been deleted.']
+            );
+        } else {
+
+            return $this->unauthenticatedResponse();
+        }
     }
 }

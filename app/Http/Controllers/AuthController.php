@@ -9,6 +9,8 @@ use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
+    public static $token_name = 'auth-token';
+
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->validated();
@@ -16,18 +18,18 @@ class AuthController extends Controller
         if (auth()->attempt($credentials)) {
 
             $token = auth()->user()->createToken(
-                'auth_token',
+                self::$token_name,
                 ['*'],
-                now()->addWeek()
+                now()->addMonth()
             );
 
-            return $this->response([
+            return $this->jsonResponse([
                 'token' => $token->plainTextToken
-            ], true);
+            ]);
 
         } else {
 
-            return $this->response(
+            return $this->jsonResponse(
                 [
                     'errors' => [
                         'email' => ['The provided credentials are incorrect.']
@@ -46,12 +48,12 @@ class AuthController extends Controller
         $user = User::query()->create($validated);
 
         $token = $user->createToken(
-            'auth_token',
+            self::$token_name,
             ['*'],
-            now()->addWeek()
+            now()->addMonth()
         );
 
-        return $this->response([
+        return $this->jsonResponse([
             'token' => $token->plainTextToken
         ], true, 201);
     }
@@ -64,8 +66,8 @@ class AuthController extends Controller
             $user->currentAccessToken()->delete();
         }
 
-        return $this->response([
+        return $this->jsonResponse([
             'message' => 'Logged out successfully'
-        ], true);
+        ]);
     }
 }

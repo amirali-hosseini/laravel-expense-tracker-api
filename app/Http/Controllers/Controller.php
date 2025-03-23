@@ -2,12 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
+
 abstract class Controller
 {
-    public function response(array $data, bool $result, int $status = 200)
+    public function jsonResponse(array $responseData, bool $isSuccessful = true, int $statusCode = 200): JsonResponse
     {
-        $data['result'] = $result;
+        $responseData['success'] = $isSuccessful;
 
-        return response()->json($data, $status);
+        return response()->json($responseData, $statusCode);
+    }
+
+    public function unauthenticatedResponse(): JsonResponse
+    {
+        return $this->jsonResponse([
+            'message' => 'Unauthenticated.'
+        ], false, 401);
     }
 }

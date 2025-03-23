@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 Route::group([
@@ -11,4 +12,9 @@ Route::group([
     Route::post('login', 'login');
 
     Route::post('logout', 'logout')->middleware('auth:sanctum');
+});
+
+Route::group(['middleware' => 'auth:sanctum'], function () {
+
+    Route::apiResource('transactions', TransactionController::class);
 });

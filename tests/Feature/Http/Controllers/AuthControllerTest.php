@@ -4,15 +4,16 @@ namespace Tests\Feature\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\Http\Traits\CreateUserAndGenerateTokenTrait;
 use Tests\TestCase;
 
 class AuthControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, CreateUserAndGenerateTokenTrait;
 
     public function test_user_can_login(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUser();
 
         $response = $this->post('/api/login', [
             'email' => $user->email,
@@ -21,9 +22,9 @@ class AuthControllerTest extends TestCase
 
         $response->assertOk()
             ->assertJsonStructure(
-                ['result', 'token']
+                ['success', 'token']
             )->assertJson(
-                ['result' => true]
+                ['success' => true]
             );
 
         $this->assertDatabaseHas('personal_access_tokens', [
@@ -41,9 +42,9 @@ class AuthControllerTest extends TestCase
 
         $response->assertCreated()
             ->assertJsonStructure(
-                ['result', 'token']
+                ['success', 'token']
             )->assertJson(
-                ['result' => true]
+                ['success' => true]
             );
 
         $this->assertDatabaseHas('users', [
@@ -59,8 +60,8 @@ class AuthControllerTest extends TestCase
 
     public function test_user_can_logout(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('auth-token', ['*'], now()->addHour());
+        $user = $this->createUser();
+        $token = $this->generateToken($user);
 
         $tokenId = $token->accessToken->id;
 
@@ -69,7 +70,7 @@ class AuthControllerTest extends TestCase
         ])->post('/api/logout');
 
         $response->assertOk()->assertJson([
-            'result' => true
+            'success' => true
         ]);
         $this->assertDatabaseMissing('personal_access_tokens', [
             'tokenable_id' => $user->id,

@@ -2,19 +2,21 @@
 
 namespace Tests\Feature\Http\Controllers;
 
+use App\Models\Transaction;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 
-class TransactionControllerTest extends TestCase
+class TransactionControllerTest extends ResourceControllerTestCase
 {
-    /**
-     * A basic feature test example.
-     */
-    public function test_example(): void
-    {
-        $response = $this->get('/');
+    use RefreshDatabase;
 
-        $response->assertStatus(200);
+    public function model(): Model
+    {
+        return new Transaction();
+    }
+
+    public function getRequiredFieldName(): string
+    {
+        return 'amount';
     }
 }
