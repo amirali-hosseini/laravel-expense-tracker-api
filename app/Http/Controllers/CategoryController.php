@@ -16,7 +16,7 @@ class CategoryController extends Controller
     {
         $categories = auth()->user()->categories()->latest()->paginate(10);
 
-        return $this->jsonResponse(['data' => CategoryResource::collection($categories)->toArray(request())]);
+        return $this->paginatedResponse($categories, CategoryResource::class);
     }
 
     /**

@@ -17,7 +17,7 @@ class TransactionController extends Controller
     {
         $transactions = auth()->user()->transactions()->latest()->paginate(10);
 
-        return $this->jsonResponse(['data' => TransactionResource::collection($transactions)->toArray(request())]);
+        return $this->paginatedResponse($transactions, TransactionResource::class);
     }
 
     /**
