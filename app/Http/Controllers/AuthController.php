@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\auth\LoginRequest;
 use App\Http\Requests\auth\RegisterRequest;
 use App\Models\User;
+use Hash;
 use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
@@ -15,30 +16,21 @@ class AuthController extends Controller
     {
         $credentials = $request->validated();
 
-        if (auth()->attempt($credentials)) {
+        $user = User::where('email', $credentials['email'])->first();
 
-            $token = auth()->user()->createToken(
-                self::$token_name,
-                ['*'],
-                now()->addMonth()
-            );
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
 
             return $this->jsonResponse([
-                'token' => $token->plainTextToken
-            ]);
+                'errors' => ['email' => ['The provided credentials are incorrect.']]
+            ], false, 422);
 
-        } else {
-
-            return $this->jsonResponse(
-                [
-                    'errors' => [
-                        'email' => ['The provided credentials are incorrect.']
-                    ],
-                ],
-                false,
-                422
-            );
         }
+
+        $token = $user->createToken(self::$token_name, ['*'], now()->addMonth());
+
+        return $this->jsonResponse([
+            'token' => $token->plainTextToken
+        ]);
     }
 
     public function register(RegisterRequest $request): JsonResponse
@@ -62,9 +54,7 @@ class AuthController extends Controller
     {
         $user = auth()->user();
 
-        if ($user && $user->currentAccessToken()) {
-            $user->currentAccessToken()->delete();
-        }
+        $user->currentAccessToken()->delete();
 
         return $this->jsonResponse([
             'message' => 'Logged out successfully'

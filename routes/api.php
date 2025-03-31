@@ -26,8 +26,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'controller' => ProfileController::class
     ], function () {
 
-        Route::get('/', 'profile')->name('profile');
+        Route::get('/', 'profile');
         Route::patch('/', 'updateProfile');
 
+        Route::patch('password', 'updatePassword');
     });
 });

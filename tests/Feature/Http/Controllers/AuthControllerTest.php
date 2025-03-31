@@ -15,7 +15,7 @@ class AuthControllerTest extends TestCase
     {
         $user = $this->createUser();
 
-        $response = $this->post('/api/login', [
+        $response = $this->postJson('/api/login', [
             'email' => $user->email,
             'password' => 'password',
         ]);
@@ -34,7 +34,7 @@ class AuthControllerTest extends TestCase
 
     public function test_user_can_register(): void
     {
-        $response = $this->post('/api/register', [
+        $response = $this->postJson('/api/register', [
             'name' => 'John Doe',
             'email' => 'johndoe@example.com',
             'password' => 'password#12345',
@@ -67,7 +67,7 @@ class AuthControllerTest extends TestCase
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token->plainTextToken
-        ])->post('/api/logout');
+        ])->postJson('/api/logout');
 
         $response->assertOk()->assertJson([
             'success' => true
