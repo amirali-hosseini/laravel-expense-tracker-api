@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Http\Traits;
 
+use App\Models\Category;
+
 trait CreatesResourcesTestTrait
 {
     public function test_user_can_create_resource(): void
@@ -10,7 +12,17 @@ trait CreatesResourcesTestTrait
         $user = $this->createUser();
         $token = $this->generateToken($user);
 
-        $data = $model::factory()->for($user)->raw();
+        $factory = $model::factory()->for($user);
+
+        // If the model has a 'category' method, assign a category
+        if (method_exists($model, 'category')) {
+
+            $category = Category::factory()->for($user)->create();
+            $factory = $factory->for($category);
+
+        }
+
+        $data = $factory->raw();
 
         $response = $this->withToken($token->plainTextToken)
             ->postJson('/api/' . $this->route(), $data);

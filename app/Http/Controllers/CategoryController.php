@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 
 class CategoryController extends Controller
@@ -13,7 +14,9 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $categories = auth()->user()->categories()->latest()->paginate(10);
+
+        return $this->jsonResponse(['data' => CategoryResource::collection($categories)->toArray(request())]);
     }
 
     /**
@@ -21,7 +24,17 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        $validated['user_id'] = auth()->id();
+
+        Category::query()->create($validated);
+
+        return $this->jsonResponse(
+            ['message' => 'Category created successfully.'],
+            true,
+            201
+        );
     }
 
     /**
@@ -29,7 +42,15 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        if ($category->user()->is(auth()->user())) {
+
+            return $this->jsonResponse(
+                ['data' => new CategoryResource($category)]
+            );
+        } else {
+
+            return $this->unauthenticatedResponse();
+        }
     }
 
     /**
@@ -37,7 +58,17 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
-        //
+        if ($category->user()->is(auth()->user())) {
+
+            $category->update($request->validated());
+
+            return $this->jsonResponse(
+                ['message' => 'The category has been updated.']
+            );
+        } else {
+
+            return $this->unauthenticatedResponse();
+        }
     }
 
     /**
@@ -45,6 +76,16 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        if ($category->user()->is(auth()->user())) {
+
+            $category->delete();
+
+            return $this->jsonResponse(
+                ['message' => 'The category has been deleted.']
+            );
+        } else {
+
+            return $this->unauthenticatedResponse();
+        }
     }
 }

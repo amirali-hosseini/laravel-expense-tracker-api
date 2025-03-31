@@ -10,7 +10,7 @@ trait ListsResourcesTestTrait
         $user = $this->createUser();
         $token = $this->generateToken($user);
 
-        $model::factory(20)->for($user)->create();
+        $model::factory(10)->for($user)->create();
 
         $response = $this->withToken($token->plainTextToken)
             ->getJson('/api/' . $this->route());
@@ -18,7 +18,7 @@ trait ListsResourcesTestTrait
         $response->assertOk()
             ->assertJsonStructure(['success', 'data'])
             ->assertJson(['success' => true])
-            ->assertJsonCount(20, 'data');
+            ->assertJsonCount(10, 'data');
 
         $data = $response->json('data');
         $firstItem = $data[0];

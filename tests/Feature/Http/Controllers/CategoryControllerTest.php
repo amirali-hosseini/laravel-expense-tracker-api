@@ -2,19 +2,21 @@
 
 namespace Tests\Feature\Http\Controllers;
 
+use App\Models\Category;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 
-class CategoryControllerTest extends TestCase
+class CategoryControllerTest extends ResourceControllerTestCase
 {
-    /**
-     * A basic feature test example.
-     */
-    public function test_example(): void
-    {
-        $response = $this->get('/');
+    use RefreshDatabase;
 
-        $response->assertStatus(200);
+    public function model(): Model
+    {
+        return new Category();
+    }
+
+    public function getRequiredFieldName(): string
+    {
+        return 'name';
     }
 }

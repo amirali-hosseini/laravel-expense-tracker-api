@@ -20,7 +20,7 @@ class CategoryFactory extends Factory
         return [
             'user_id' => User::factory(),
             'name' => fake()->words(3, true),
-            'slug' => fake()->slug(3)
+            'slug' => fake()->unique()->slug()
         ];
     }
 }

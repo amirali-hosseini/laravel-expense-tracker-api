@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Http\Resources\TransactionResource;
+use App\Models\Category;
 use App\Models\Transaction;
 
 class TransactionController extends Controller
@@ -14,9 +15,9 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $transactions = auth()->user()->transactions()->latest()->paginate(20);
+        $transactions = auth()->user()->transactions()->latest()->paginate(10);
 
-        return $this->jsonResponse(['data' => TransactionResource::collection($transactions)->toArray(request())], true);
+        return $this->jsonResponse(['data' => TransactionResource::collection($transactions)->toArray(request())]);
     }
 
     /**
@@ -28,13 +29,21 @@ class TransactionController extends Controller
 
         $validated['user_id'] = auth()->id();
 
-        Transaction::query()->create($validated);
+        $category = Category::query()->find($validated['category_id']);
 
-        return $this->jsonResponse(
-            ['message' => 'Transaction created successfully.'],
-            true,
-            201
-        );
+        if ($category->user()->is(auth()->user())) {
+
+            Transaction::query()->create($validated);
+
+            return $this->jsonResponse(
+                ['message' => 'Transaction created successfully.'],
+                true,
+                201
+            );
+        } else {
+
+            return $this->unauthenticatedResponse();
+        }
     }
 
     /**
