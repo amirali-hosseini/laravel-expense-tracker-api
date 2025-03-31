@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +20,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::apiResource('transactions', TransactionController::class);
     Route::apiResource('categories', CategoryController::class);
+
+    Route::group([
+        'prefix' => 'profile',
+        'controller' => ProfileController::class
+    ], function () {
+
+        Route::get('/', 'profile')->name('profile');
+        Route::patch('/', 'updateProfile');
+
+    });
 });
