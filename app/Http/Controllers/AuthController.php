@@ -10,7 +10,7 @@ use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
-    public static $token_name = 'auth-token';
+    public static $auth_token_name = 'auth-token';
 
     public function login(LoginRequest $request): JsonResponse
     {
@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         }
 
-        $token = $user->createToken(self::$token_name, ['*'], now()->addMonth());
+        $token = $user->createToken(self::$auth_token_name, ['*'], now()->addMonth());
 
         return $this->jsonResponse([
             'token' => $token->plainTextToken
@@ -40,7 +40,7 @@ class AuthController extends Controller
         $user = User::query()->create($validated);
 
         $token = $user->createToken(
-            self::$token_name,
+            self::$auth_token_name,
             ['*'],
             now()->addMonth()
         );

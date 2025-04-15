@@ -8,16 +8,16 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class Controller
 {
-    public function paginatedResponse(LengthAwarePaginator $paginator, string $resourceClass)
+    public function paginatedResponse(LengthAwarePaginator $paginator, string $resourceClass, array $additionalData = [])
     {
         return $this->jsonResponse([
             'data' => $resourceClass::collection($paginator)->toArray(request()),
-            'meta' => [
+            'meta' => array_merge([
                 'current_page' => $paginator->currentPage(),
                 'last_page' => $paginator->lastPage(),
                 'per_page' => $paginator->perPage(),
                 'total' => $paginator->total(),
-            ],
+            ], $additionalData),
         ]);
     }
 
@@ -35,7 +35,7 @@ abstract class Controller
         ], false, 401);
     }
 
-    public function CheckUser(Model $model): bool
+    public function checkUser(Model $model): bool
     {
         return $model->user()->is(auth()->user());
     }

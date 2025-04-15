@@ -7,23 +7,65 @@ use App\Http\Requests\UpdateTransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Models\Category;
 use App\Models\Transaction;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 
 class TransactionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        $transactions = auth()->user()->transactions()->latest()->paginate(10);
+        $user = auth()->user();
 
-        return $this->paginatedResponse($transactions, TransactionResource::class);
+        $startDate = request()->filled('start')
+            ? Carbon::parse(request('start'))->startOfDay()
+            : now()->startOfMonth();
+
+        $endDate = request()->filled('end')
+            ? Carbon::parse(request('end'))->endOfDay()
+            : now()->endOfMonth();
+
+        $dateRange = [$startDate, $endDate];
+        $type = request('type');
+
+        $transactionsQuery = $user->transactions()
+            ->whereBetween('date', $dateRange);
+
+        if (in_array($type, ['income', 'expense'])) {
+            $transactionsQuery->where('type', $type);
+        }
+
+        $transactions = $transactionsQuery
+            ->latest()
+            ->paginate(10);
+
+        // Get totals
+        $income = $user->transactions()
+            ->whereBetween('date', $dateRange)
+            ->where('type', 'income')
+            ->sum('amount');
+
+        $expense = $user->transactions()
+            ->whereBetween('date', $dateRange)
+            ->where('type', 'expense')
+            ->sum('amount');
+
+        $additionalData = [
+            'monthly_summary' => [
+                'total_income' => (int) $income,
+                'total_expense' => (int) $expense,
+            ],
+        ];
+
+        return $this->paginatedResponse($transactions, TransactionResource::class, $additionalData);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTransactionRequest $request)
+    public function store(StoreTransactionRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -49,9 +91,9 @@ class TransactionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Transaction $transaction)
+    public function show(Transaction $transaction): JsonResponse
     {
-        if ($this->CheckUser($transaction)) {
+        if ($this->checkUser($transaction)) {
 
             return $this->jsonResponse(
                 ['data' => new TransactionResource($transaction)]
@@ -65,9 +107,9 @@ class TransactionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTransactionRequest $request, Transaction $transaction)
+    public function update(UpdateTransactionRequest $request, Transaction $transaction): JsonResponse
     {
-        if ($this->CheckUser($transaction)) {
+        if ($this->checkUser($transaction)) {
 
             $transaction->update($request->validated());
 
@@ -83,9 +125,9 @@ class TransactionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Transaction $transaction)
+    public function destroy(Transaction $transaction): JsonResponse
     {
-        if ($this->CheckUser($transaction)) {
+        if ($this->checkUser($transaction)) {
 
             $transaction->delete();
 

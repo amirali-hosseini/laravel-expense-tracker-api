@@ -15,6 +15,6 @@ trait CreateUserAndGenerateTokenTrait
 
     public function generateToken(User $user): NewAccessToken
     {
-        return $user->createToken(AuthController::$token_name);
+        return $user->createToken(AuthController::$auth_token_name);
     }
 }
