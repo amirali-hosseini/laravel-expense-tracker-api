@@ -42,7 +42,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        if ($category->user()->is(auth()->user())) {
+        if ($this->CheckUser($category)) {
 
             return $this->jsonResponse(
                 ['data' => new CategoryResource($category)]
@@ -58,7 +58,7 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
-        if ($category->user()->is(auth()->user())) {
+        if ($this->CheckUser($category)) {
 
             $category->update($request->validated());
 
@@ -76,7 +76,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        if ($category->user()->is(auth()->user())) {
+        if ($this->CheckUser($category)) {
 
             $category->delete();
 

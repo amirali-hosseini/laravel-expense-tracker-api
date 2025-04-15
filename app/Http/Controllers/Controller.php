@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -32,5 +33,10 @@ abstract class Controller
         return $this->jsonResponse([
             'message' => 'Unauthenticated.'
         ], false, 401);
+    }
+
+    public function CheckUser(Model $model): bool
+    {
+        return $model->user()->is(auth()->user());
     }
 }

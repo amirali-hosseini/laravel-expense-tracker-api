@@ -51,7 +51,7 @@ class TransactionController extends Controller
      */
     public function show(Transaction $transaction)
     {
-        if ($transaction->user()->is(auth()->user())) {
+        if ($this->CheckUser($transaction)) {
 
             return $this->jsonResponse(
                 ['data' => new TransactionResource($transaction)]
@@ -67,7 +67,7 @@ class TransactionController extends Controller
      */
     public function update(UpdateTransactionRequest $request, Transaction $transaction)
     {
-        if ($transaction->user()->is(auth()->user())) {
+        if ($this->CheckUser($transaction)) {
 
             $transaction->update($request->validated());
 
@@ -85,7 +85,7 @@ class TransactionController extends Controller
      */
     public function destroy(Transaction $transaction)
     {
-        if ($transaction->user()->is(auth()->user())) {
+        if ($this->CheckUser($transaction)) {
 
             $transaction->delete();
 
