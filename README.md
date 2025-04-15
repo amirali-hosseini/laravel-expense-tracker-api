@@ -1,66 +1,114 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 💰 Expense Tracker API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A simple API for tracking expenses, managing categories, and handling financial data built with Laravel.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   User authentication
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   Manage income and expense transactions
 
-## Learning Laravel
+-   Filter transactions by date and type
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   Monthly financial summaries (total income & expenses)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+-   Category management
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   Pagination support
 
-## Laravel Sponsors
+-   Token-based access control
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 📊 API Endpoints Overview
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### 🔐 Authentication
 
-## Contributing
+| Method | Endpoint        | Description                    |
+| ------ | --------------- | ------------------------------ |
+| POST   | `/api/register` | Register a new user            |
+| POST   | `/api/login`    | Authenticate and get token     |
+| POST   | `/api/logout`   | Log out the authenticated user |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 👤 Profile
 
-## Code of Conduct
+| Method | Endpoint                | Description                    |
+| ------ | ----------------------- | ------------------------------ |
+| GET    | `/api/profile`          | Get authenticated user profile |
+| PATCH  | `/api/profile`          | Update user profile info       |
+| PATCH  | `/api/profile/password` | Change user password           |
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 💸 Transactions
 
-## Security Vulnerabilities
+| Method | Endpoint                 | Description                      |
+| ------ | ------------------------ | -------------------------------- |
+| GET    | `/api/transactions`      | List transactions (with filters) |
+| POST   | `/api/transactions`      | Create a new transaction         |
+| GET    | `/api/transactions/{id}` | Show a specific transaction      |
+| PUT    | `/api/transactions/{id}` | Update a transaction             |
+| DELETE | `/api/transactions/{id}` | Delete a transaction             |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 🗂️ Categories
 
-## License
+| Method | Endpoint               | Description              |
+| ------ | ---------------------- | ------------------------ |
+| GET    | `/api/categories`      | List all categories      |
+| POST   | `/api/categories`      | Create a new category    |
+| GET    | `/api/categories/{id}` | Show a specific category |
+| PUT    | `/api/categories/{id}` | Update a category        |
+| DELETE | `/api/categories/{id}` | Delete a category        |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+> 🔒 **Note :** All endpoints (except register/login) require authentication via a Bearer token.
+
+---
+
+## 📝 Required Fields for Resource Creation and Update
+
+### Transaction
+
+**POST** `/api/transactions`
+
+| Field         | Type    | Validation Rules                                   |
+| ------------- | ------- | -------------------------------------------------- |
+| `category_id` | integer | required, integer                                  |
+| `amount`      | numeric | required, max: 9,999,999,990                       |
+| `type`        | string  | required, must be either `income` or `expense`     |
+| `description` | string  | optional, max: 2048 characters                     |
+| `date`        | date    | optional, defaults to current date if not provided |
+
+### Category
+
+**POST** `/api/categories`
+
+| Field  | Type   | Validation Rules                                           |
+| ------ | ------ | ---------------------------------------------------------- |
+| `name` | string | required, max: 255 characters                              |
+| `slug` | string | required, must be unique for the user, max: 255 characters |
+
+> 🔐 **Note :** `slug` must be unique **per user**. Validation ensures uniqueness based on the authenticated user's `id`.
+
+---
+
+## 🔎 Filtering Transactions
+
+You can filter transactions on:
+
+**GET** `/api/transactions`
+
+### Available Query Parameters:
+
+| Parameter | Type   | Description                                        |
+| --------- | ------ | -------------------------------------------------- |
+| `type`    | string | Filter by type: `income` or `expense`              |
+| `start`   | string | Show transactions from this start date (inclusive) |
+| `end`     | string | Show transactions up to this end date (inclusive)  |
+
+**Example usage:**
+
+```http
+GET /api/transactions?type=income&start=2025-04-01&end=2025-04-30
+```
