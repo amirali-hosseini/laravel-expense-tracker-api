@@ -68,6 +68,16 @@ A simple API for tracking expenses, managing categories, and handling financial 
 
 ## 📝 Required Fields for Resource Creation and Update
 
+### Register
+
+**POST** `/api/register`
+
+| Field      | Type   | Validation Rules                                 |
+| ---------- | ------ | ------------------------------------------------ |
+| `name`     | string | required, max: 255 characters                    |
+| `email`    | string | required, max: 255 characters                    |
+| `password` | string | required, min: 8 characters, max: 255 characters |
+
 ### Transaction
 
 **POST** `/api/transactions`
